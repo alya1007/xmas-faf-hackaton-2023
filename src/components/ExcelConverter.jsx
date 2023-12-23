@@ -33,10 +33,17 @@ const ExcelConverter = () => {
           }
         }
       });
+	// Replace '\r\n' with a space in each cell value
+    const replacedData = parsedData.map((row) =>
+      row.map((cell) => (typeof cell === 'string' ? cell.replace(/\r\n/g, ' ') : cell))
+    );
 
-      setData(parsedData);
+    setData(replacedData);
+    //   setData(parsedData);
     };
   };
+
+  "lab. CI 2 N. Magariu 420"
 
   useEffect(() => {
     console.log(data);
