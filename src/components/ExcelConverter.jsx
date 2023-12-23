@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 
-const ExcelConverter = () => {
+const ExcelConverter = ({ pdfFile }) => {
 	const [data, setData] = useState([]);
 
 	const handleFileUpload = (e) => {
@@ -56,7 +56,7 @@ const ExcelConverter = () => {
 };
 
 ExcelConverter.propTypes = {
-	pdfUrl: PropTypes.string.isRequired,
+	pdfFile: PropTypes.string.isRequired,
 };
 
 export default ExcelConverter;

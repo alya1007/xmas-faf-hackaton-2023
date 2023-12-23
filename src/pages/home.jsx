@@ -1,7 +1,9 @@
+import InitialForm from "../components/InitialForm";
+
 const Home = () => {
 	return (
 		<div>
-			<h1>Home</h1>
+			<InitialForm />
 		</div>
 	);
 };
