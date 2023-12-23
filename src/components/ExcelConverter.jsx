@@ -8,37 +8,36 @@ const ExcelConverter = ({ pdfFile }) => {
   const handleLessons = (parsedData) => {
     let lessons = [];
     for (let i = 1; i < parsedData.length; i++) {
-      for (let j = 2; j < parsedData[i].length; j++) {
-		if (parsedData[i][j] != "") {
-			const lesson = {
-				subject: parsedData[i][j].split('|')[0],
-				prof: parsedData[i][j].split('|')[1],
-				cabinet: parsedData[i][j].split('|')[2],
-				time: parsedData[i][1],
-				day: parsedData[i][0],
-				group: parsedData[0][j]
-			  };
-			  lessons.push(lesson);
-		}
+        for (let j = 2; j < parsedData[i].length; j++) {
+          if (parsedData[i][j] != "") {
+              const lesson = {
+                  subject: parsedData[i][j].split('|')[0],
+                  prof: parsedData[i][j].split('|')[1],
+                  cabinet: parsedData[i][j].split('|')[2],
+                  time: parsedData[i][1],
+                  day: parsedData[i][0],
+                  group: parsedData[0][j]
+                };
+                lessons.push(lesson);
+          }
+        }
       }
-    }
-    console.log(lessons);
-  };
+      console.log(lessons);
+	};
 
-  const handleFileUpload = (e) => {
-    const reader = new FileReader();
-    reader.readAsBinaryString(e.target.files[0]);
-    reader.onload = (e) => {
-      const data = e.target.result;
-      const workbook = XLSX.read(data, { type: "binary" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const parsedData = XLSX.utils.sheet_to_json(sheet, {
-        header: 1,
-        defval: "",
-      });
+	const handleFileUpload = (e) => {
+	  const reader = new FileReader();
+	  reader.readAsBinaryString(e.target.files[0]);
+	  reader.onload = (e) => {
+		const data = e.target.result;
+		const workbook = XLSX.read(data, { type: "binary" });
+		const sheetName = workbook.SheetNames[0];
+		const sheet = workbook.Sheets[sheetName];
+		const parsedData = XLSX.utils.sheet_to_json(sheet, {
+		  header: 1,
+		  defval: "",
+		});
 
-      // Handle merged cells
       const merges = sheet["!merges"] || [];
 
       merges.forEach((merge) => {
@@ -65,32 +64,51 @@ const ExcelConverter = ({ pdfFile }) => {
   };
 
   useEffect(() => {
-    // Additional logic in case you need to do something when data changes
+    console.log(data);
   }, [data]);
+
+  const handleCellEdit = (rowIndex, colIndex, newValue) => {
+    const newData = data.map((row, rIndex) => {
+      if (rIndex === rowIndex) {
+        return Object.fromEntries(
+          Object.entries(row).map(([key, value], cIndex) => {
+            if (cIndex === colIndex) {
+              return [key, newValue];
+            }
+            return [key, value];
+          })
+        );
+      }
+      return row;
+    });
+
+    setData(newData);
+  };
 
   return (
     <div className="App">
       <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+      
       {data.length > 0 && (
         <table className="table">
-          <thead>
-            <tr>
-              {Object.keys(data[0]).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
-            </tr>
-          </thead>
           <tbody>
-            {data.map((row, index) => (
-              <tr key={index}>
-                {Object.values(row).map((value, index) => (
-                  <td key={index}>{value}</td>
+            {data.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {Object.values(row).map((value, colIndex) => (
+                  <td
+                    key={colIndex}
+                    contentEditable
+                    onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText)}
+                  >
+                    {value}
+                  </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      
       <br />
       <br />
       {/*... webstylepress ...*/}
