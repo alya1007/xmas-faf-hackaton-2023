@@ -1,10 +1,11 @@
 import { useState } from "react";
 import ExcelConverter from "./ExcelConverter";
-// import { fetchData } from "../services/apiService";
+import { fetchData } from "../services/apiService";
 import { generateExcel } from "./generateExcel";
 
 const InitialForm = () => {
 	const [selectedFile, setSelectedFile] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const handleFileSelect = (e) => {
 		const file = e.target.files[0];
@@ -12,20 +13,10 @@ const InitialForm = () => {
 	};
 
 	const handleGenerate = async () => {
-		console.log("Generate button clicked");
-		// const data = (await fetchData(selectedFile)) ?? ;
-		const data = defaultData;
+		setLoading(true);
+		const data = await fetchData();
 		generateExcel(data);
-	};
-
-	const defaultData = {
-		timestamps: ["mon/8", "ts/8", "wed/8"],
-		groups: ["faf-213", "ti-212"],
-		courses: [
-			["-", "SO"],
-			["PR", "FGI"],
-			["SM", "-"],
-		],
+		setLoading(false);
 	};
 
 	return (
@@ -38,10 +29,21 @@ const InitialForm = () => {
 				<div className="flex items-center justify-between">
 					<button
 						onClick={handleGenerate}
-						className=" w-full bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none hover:border-card focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors"
+						className={`w-full bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
 						type="button"
+						{...(loading && {
+							disabled: true,
+						})}
 					>
-						Generate
+						{loading ? (
+							<img
+								src="/spinner.gif"
+								alt="spinner"
+								className=" p-0 h-6 m-auto"
+							/>
+						) : (
+							"Generate"
+						)}
 					</button>
 					{selectedFile && <ExcelConverter file={selectedFile} />}
 				</div>
