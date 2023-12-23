@@ -17,26 +17,71 @@ const ExcelConverter = ({ pdfFile }) => {
 				time: parsedData[i][1],
 				day: parsedData[i][0],
 				group: parsedData[0][j]
-			  };
-			  lessons.push(lesson);
+			};
+			lessons.push(lesson);
 		}
       }
     }
     console.log(lessons);
+
+	let errors = [];
+	//
+	lessons.forEach((entry, index) => {
+		const { day, time, prof, cabinet, subject } = entry;
+		const key = `${day}-${time}-${prof}`;
+
+		if (!errors [key]){
+			errors[key] = [{index, cabinet}];
+		} else {
+			const conflictObjects = errors[key];
+            const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
+
+			if (sameTimeProf) {
+				console.error("Conflict found:", entry);
+			} else {
+				conflictObjects.push({ index, cabinet });
+			}
+		}
+
+		
+	});
   };
 
-	const handleFileUpload = (e) => {
-	  const reader = new FileReader();
-	  reader.readAsBinaryString(e.target.files[0]);
-	  reader.onload = (e) => {
-		const data = e.target.result;
-		const workbook = XLSX.read(data, { type: "binary" });
-		const sheetName = workbook.SheetNames[0];
-		const sheet = workbook.Sheets[sheetName];
-		const parsedData = XLSX.utils.sheet_to_json(sheet, {
-		  header: 1,
-		  defval: "",
-		});
+  
+//   const checkLessons = (lessons) => {
+// 	let errors = [];
+// 	//
+// 	lessons.forEach(lesson, index => {
+// 		const { day, time, prof, cabinet, subject } = entry;
+// 		const key = `${day}-${time}-${prof}`;
+
+// 		if (!errors [key]){
+// 			conflicts[key] = [{index, cabinet}];
+// 		} else {
+// 			const conflictObjects = conflicts[key];
+//             const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
+// 		}
+
+// 		if (sameTimeProf) {
+// 			console.error("Conflict found:", entry);
+// 		} else {
+// 			conflictObjects.push({ index, cabinet });
+// 		}
+// 	});
+//   }
+
+  const handleFileUpload = (e) => {
+    const reader = new FileReader();
+    reader.readAsBinaryString(e.target.files[0]);
+    reader.onload = (e) => {
+      const data = e.target.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const parsedData = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: "",
+      });
 
       const merges = sheet["!merges"] || [];
 
