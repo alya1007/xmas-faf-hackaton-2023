@@ -31,27 +31,31 @@ const ExcelConverter = ({ pdfFile }) => {
 
   const checkForConflicts = () => {
     let errors = [];
-
+  
     lessons.forEach((entry, index) => {
       const { day, time, prof, cabinet, subject } = entry;
-      const key = `${day}-${time}-${prof}`;
-
+      const key = `${day}-${time}-${cabinet}`;
+  
       if (!errors[key]) {
-        errors[key] = [{ index, cabinet }];
+        errors[key] = [{ index, prof, subject }];
       } else {
         const conflictObjects = errors[key];
-        const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
-
-        if (sameTimeProf) {
+        const hasConflict = conflictObjects.some(obj => (
+          obj.index !== index && 
+          (obj.prof !== prof || obj.subject !== subject)
+        ));
+  
+        if (hasConflict) {
           console.error("Conflict found:", entry);
         } else {
-          conflictObjects.push({ index, cabinet });
+          conflictObjects.push({ index, prof, subject });
         }
       }
     });
-
+  
     setConflicts(errors);
   };
+  
 
   const handleFileUpload = (e) => {
     const reader = new FileReader();
