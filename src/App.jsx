@@ -1,14 +1,12 @@
-import './App.css'
+import "./App.css";
+import ExcelConverter from "./components/ExcelConverter";
 
 function App() {
-
-  return (
-    <>
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-    </>
-  )
+	return (
+		<div className="App">
+			<ExcelConverter />
+		</div>
+	);
 }
 
-export default App
+export default App;
