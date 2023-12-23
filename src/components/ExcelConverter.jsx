@@ -56,36 +56,38 @@ const ExcelConverter = ({ pdfFile }) => {
     setDataModified(false);
   };
 
-  const handleFileUpload = (e) => {
-    const reader = new FileReader();
-    reader.readAsBinaryString(e.target.files[0]);
-    reader.onload = (e) => {
-      const data = e.target.result;
-      const workbook = XLSX.read(data, { type: "binary" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const parsedData = XLSX.utils.sheet_to_json(sheet, {
-        header: 1,
-        defval: "",
-      });
+	const handleFileUpload = (e) => {
+		const reader = new FileReader();
+		reader.readAsBinaryString(e.target.files[0]);
+		reader.onload = (e) => {
+			const data = e.target.result;
+			const workbook = XLSX.read(data, { type: "binary" });
+			const sheetName = workbook.SheetNames[0];
+			const sheet = workbook.Sheets[sheetName];
+			const parsedData = XLSX.utils.sheet_to_json(sheet, {
+				header: 1,
+				defval: "",
+			});
 
-      const merges = sheet["!merges"] || [];
+			const merges = sheet["!merges"] || [];
 
-      merges.forEach((merge) => {
-        const mergedValue = parsedData[merge.s.r][merge.s.c];
+			merges.forEach((merge) => {
+				const mergedValue = parsedData[merge.s.r][merge.s.c];
 
-        for (let row = merge.s.r; row <= merge.e.r; row++) {
-          for (let col = merge.s.c; col <= merge.e.c; col++) {
-            if (row !== merge.s.r || col !== merge.s.c) {
-              parsedData[row][col] = mergedValue;
-            }
-          }
-        }
-      });
+				for (let row = merge.s.r; row <= merge.e.r; row++) {
+					for (let col = merge.s.c; col <= merge.e.c; col++) {
+						if (row !== merge.s.r || col !== merge.s.c) {
+							parsedData[row][col] = mergedValue;
+						}
+					}
+				}
+			});
 
-      const replacedData = parsedData.map((row) =>
-        row.map((cell) => (typeof cell === 'string' ? cell.replace(/\r\n/g, ' ') : cell))
-      );
+			const replacedData = parsedData.map((row) =>
+				row.map((cell) =>
+					typeof cell === "string" ? cell.replace(/\r\n/g, " ") : cell
+				)
+			);
 
       setData(replacedData);
       handleLessons(replacedData);
@@ -93,9 +95,9 @@ const ExcelConverter = ({ pdfFile }) => {
     };
   };
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+	useEffect(() => {
+		console.log(data);
+	}, [data]);
 
   const handleCellEdit = (rowIndex, colIndex, newValue) => {
     const newData = data.map((row, rIndex) => {
@@ -129,25 +131,27 @@ const ExcelConverter = ({ pdfFile }) => {
         </>
       )}
 
-      {data.length > 0 && (
-        <table className="table">
-          <tbody>
-            {data.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {Object.values(row).map((value, colIndex) => (
-                  <td
-                    key={colIndex}
-                    contentEditable
-                    onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText)}
-                  >
-                    {value}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+			{data.length > 0 && (
+				<table className="table">
+					<tbody>
+						{data.map((row, rowIndex) => (
+							<tr key={rowIndex}>
+								{Object.values(row).map((value, colIndex) => (
+									<td
+										key={colIndex}
+										contentEditable
+										onBlur={(e) =>
+											handleCellEdit(rowIndex, colIndex, e.target.innerText)
+										}
+									>
+										{value}
+									</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			)}
 
       {conflicts.length > 0 && (
         <div>
@@ -160,15 +164,15 @@ const ExcelConverter = ({ pdfFile }) => {
         </div>
       )}
 
-      <br />
-      <br />
-      {/*... webstylepress ...*/}
-    </div>
-  );
+			<br />
+			<br />
+			{/*... webstylepress ...*/}
+		</div>
+	);
 };
 
 ExcelConverter.propTypes = {
-  pdfFile: PropTypes.string.isRequired,
+	pdfFile: PropTypes.string.isRequired,
 };
 
 export default ExcelConverter;
