@@ -4,8 +4,9 @@ import * as XLSX from "xlsx";
 
 const ExcelConverter = ({ pdfFile }) => {
   const [data, setData] = useState([]);
-  const [lessons, setLessons] = useState([]); // Added lessons state
+  const [lessons, setLessons] = useState([]);
   const [conflicts, setConflicts] = useState([]);
+  const [fileUploaded, setFileUploaded] = useState(false); // Added fileUploaded state
 
   const handleLessons = (parsedData) => {
     const lessonList = [];
@@ -85,6 +86,7 @@ const ExcelConverter = ({ pdfFile }) => {
 
       setData(replacedData);
       handleLessons(replacedData);
+      setFileUploaded(true); // Set fileUploaded to true when a file is uploaded
     };
   };
 
@@ -113,7 +115,9 @@ const ExcelConverter = ({ pdfFile }) => {
   return (
     <div className="App">
       <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      <button onClick={checkForConflicts}>Check for Conflicts</button>
+      {fileUploaded && ( // Render the button only if a file is uploaded
+        <button onClick={checkForConflicts}>Check for Conflicts</button>
+      )}
 
       {data.length > 0 && (
         <table className="table">
