@@ -4,12 +4,15 @@ import * as XLSX from "xlsx";
 
 const ExcelConverter = ({ pdfFile }) => {
 	const [data, setData] = useState([]);
+	const [lessons, setLessons] = useState([]);
+	const [conflicts, setConflicts] = useState([]);
+	const [fileUploaded, setFileUploaded] = useState(false); // Added fileUploaded state
 
 	const handleLessons = (parsedData) => {
-		let lessons = [];
+		const lessonList = [];
 		for (let i = 1; i < parsedData.length; i++) {
 			for (let j = 2; j < parsedData[i].length; j++) {
-				if (parsedData[i][j] != "") {
+				if (parsedData[i][j] !== "") {
 					const lesson = {
 						subject: parsedData[i][j].split("|")[0],
 						prof: parsedData[i][j].split("|")[1],
@@ -18,11 +21,40 @@ const ExcelConverter = ({ pdfFile }) => {
 						day: parsedData[i][0],
 						group: parsedData[0][j],
 					};
-					lessons.push(lesson);
+					lessonList.push(lesson);
 				}
 			}
 		}
-		console.log(lessons);
+		setLessons(lessonList);
+		console.log(lessonList);
+	};
+
+	const checkForConflicts = () => {
+		let errors = [];
+
+		lessons.forEach((entry, index) => {
+			const { day, time, prof, cabinet, subject } = entry;
+			const key = `${day}-${time}-${cabinet}`;
+
+			if (!errors[key]) {
+				errors[key] = [{ index, prof, subject }];
+			} else {
+				const conflictObjects = errors[key];
+				const hasConflict = conflictObjects.some(
+					(obj) =>
+						obj.index !== index &&
+						(obj.prof !== prof || obj.subject !== subject)
+				);
+
+				if (hasConflict) {
+					console.error("Conflict found:", entry);
+				} else {
+					conflictObjects.push({ index, prof, subject });
+				}
+			}
+		});
+
+		setConflicts(errors);
 	};
 
 	const handleFileUpload = (e) => {
@@ -38,13 +70,11 @@ const ExcelConverter = ({ pdfFile }) => {
 				defval: "",
 			});
 
-			// Handle merged cells
 			const merges = sheet["!merges"] || [];
 
 			merges.forEach((merge) => {
 				const mergedValue = parsedData[merge.s.r][merge.s.c];
 
-				// Duplicate the merged value across the entire merged range
 				for (let row = merge.s.r; row <= merge.e.r; row++) {
 					for (let col = merge.s.c; col <= merge.e.c; col++) {
 						if (row !== merge.s.r || col !== merge.s.c) {
@@ -54,7 +84,6 @@ const ExcelConverter = ({ pdfFile }) => {
 				}
 			});
 
-			// Replace '\r\n' with a space in each cell value
 			const replacedData = parsedData.map((row) =>
 				row.map((cell) =>
 					typeof cell === "string" ? cell.replace(/\r\n/g, " ") : cell
@@ -63,36 +92,72 @@ const ExcelConverter = ({ pdfFile }) => {
 
 			setData(replacedData);
 			handleLessons(replacedData);
+			setFileUploaded(true); // Set fileUploaded to true when a file is uploaded
 		};
 	};
 
 	useEffect(() => {
-		// Additional logic in case you need to do something when data changes
+		console.log(data);
 	}, [data]);
+
+	const handleCellEdit = (rowIndex, colIndex, newValue) => {
+		const newData = data.map((row, rIndex) => {
+			if (rIndex === rowIndex) {
+				return Object.fromEntries(
+					Object.entries(row).map(([key, value], cIndex) => {
+						if (cIndex === colIndex) {
+							return [key, newValue];
+						}
+						return [key, value];
+					})
+				);
+			}
+			return row;
+		});
+
+		setData(newData);
+	};
 
 	return (
 		<div className="App">
 			<input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+			{fileUploaded && ( // Render the button only if a file is uploaded
+				<button onClick={checkForConflicts}>Check for Conflicts</button>
+			)}
+
 			{data.length > 0 && (
 				<table className="table">
-					<thead>
-						<tr>
-							{Object.keys(data[0]).map((key) => (
-								<th key={key}>{key}</th>
-							))}
-						</tr>
-					</thead>
 					<tbody>
-						{data.map((row, index) => (
-							<tr key={index}>
-								{Object.values(row).map((value, index) => (
-									<td key={index}>{value}</td>
+						{data.map((row, rowIndex) => (
+							<tr key={rowIndex}>
+								{Object.values(row).map((value, colIndex) => (
+									<td
+										key={colIndex}
+										contentEditable
+										onBlur={(e) =>
+											handleCellEdit(rowIndex, colIndex, e.target.innerText)
+										}
+									>
+										{value}
+									</td>
 								))}
 							</tr>
 						))}
 					</tbody>
 				</table>
 			)}
+
+			{conflicts.length > 0 && (
+				<div>
+					<h3>Conflicts:</h3>
+					<ul>
+						{conflicts.map((conflict, index) => (
+							<li key={index}>{conflict}</li>
+						))}
+					</ul>
+				</div>
+			)}
+
 			<br />
 			<br />
 			{/*... webstylepress ...*/}
