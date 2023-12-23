@@ -4,71 +4,53 @@ import * as XLSX from "xlsx";
 
 const ExcelConverter = ({ pdfFile }) => {
   const [data, setData] = useState([]);
+  const [lessons, setLessons] = useState([]); // Added lessons state
+  const [conflicts, setConflicts] = useState([]);
 
   const handleLessons = (parsedData) => {
-    const lessons = [];
+    const lessonList = [];
     for (let i = 1; i < parsedData.length; i++) {
       for (let j = 2; j < parsedData[i].length; j++) {
-		if (parsedData[i][j] != "") {
-			const lesson = {
-				subject: parsedData[i][j].split('|')[0],
-				prof: parsedData[i][j].split('|')[1],
-				cabinet: parsedData[i][j].split('|')[2],
-				time: parsedData[i][1],
-				day: parsedData[i][0],
-				group: parsedData[0][j]
-			};
-			lessons.push(lesson);
-		}
+        if (parsedData[i][j] !== "") {
+          const lesson = {
+            subject: parsedData[i][j].split('|')[0],
+            prof: parsedData[i][j].split('|')[1],
+            cabinet: parsedData[i][j].split('|')[2],
+            time: parsedData[i][1],
+            day: parsedData[i][0],
+            group: parsedData[0][j],
+          };
+          lessonList.push(lesson);
+        }
       }
     }
-    console.log(lessons);
-
-	let errors = [];
-	//
-	lessons.forEach((entry, index) => {
-		const { day, time, prof, cabinet, subject } = entry;
-		const key = `${day}-${time}-${prof}`;
-
-		if (!errors [key]){
-			errors[key] = [{index, cabinet}];
-		} else {
-			const conflictObjects = errors[key];
-            const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
-
-			if (sameTimeProf) {
-				console.error("Conflict found:", entry);
-			} else {
-				conflictObjects.push({ index, cabinet });
-			}
-		}
-
-		
-	});
+    setLessons(lessonList);
+    console.log(lessonList);
   };
 
-  
-//   const checkLessons = (lessons) => {
-// 	let errors = [];
-// 	//
-// 	lessons.forEach(lesson, index => {
-// 		const { day, time, prof, cabinet, subject } = entry;
-// 		const key = `${day}-${time}-${prof}`;
+  const checkForConflicts = () => {
+    let errors = [];
 
-// 		if (!errors [key]){
-// 			conflicts[key] = [{index, cabinet}];
-// 		} else {
-// 			const conflictObjects = conflicts[key];
-//             const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
-// 		}
+    lessons.forEach((entry, index) => {
+      const { day, time, prof, cabinet, subject } = entry;
+      const key = `${day}-${time}-${prof}`;
 
-// 		if (sameTimeProf) {
-// 			console.error("Conflict found:", entry);
-// 		} else {
-// 			conflictObjects.push({ index, cabinet });
-// 		}
-// 	});
-//   }
+      if (!errors[key]) {
+        errors[key] = [{ index, cabinet }];
+      } else {
+        const conflictObjects = errors[key];
+        const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
+
+        if (sameTimeProf) {
+          console.error("Conflict found:", entry);
+        } else {
+          conflictObjects.push({ index, cabinet });
+        }
+      }
+    });
+
+    setConflicts(errors);
+  };
 
   const handleFileUpload = (e) => {
     const reader = new FileReader();
@@ -88,7 +70,6 @@ const ExcelConverter = ({ pdfFile }) => {
       merges.forEach((merge) => {
         const mergedValue = parsedData[merge.s.r][merge.s.c];
 
-        // Duplicate the merged value across the entire merged range
         for (let row = merge.s.r; row <= merge.e.r; row++) {
           for (let col = merge.s.c; col <= merge.e.c; col++) {
             if (row !== merge.s.r || col !== merge.s.c) {
@@ -98,14 +79,12 @@ const ExcelConverter = ({ pdfFile }) => {
         }
       });
 
-      // Replace '\r\n' with a space in each cell value
       const replacedData = parsedData.map((row) =>
         row.map((cell) => (typeof cell === 'string' ? cell.replace(/\r\n/g, ' ') : cell))
       );
 
       setData(replacedData);
       handleLessons(replacedData);
-		// checkLessons(lessons);
     };
   };
 
@@ -134,7 +113,8 @@ const ExcelConverter = ({ pdfFile }) => {
   return (
     <div className="App">
       <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      
+      <button onClick={checkForConflicts}>Check for Conflicts</button>
+
       {data.length > 0 && (
         <table className="table">
           <tbody>
@@ -154,7 +134,18 @@ const ExcelConverter = ({ pdfFile }) => {
           </tbody>
         </table>
       )}
-      
+
+      {conflicts.length > 0 && (
+        <div>
+          <h3>Conflicts:</h3>
+          <ul>
+            {conflicts.map((conflict, index) => (
+              <li key={index}>{conflict}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <br />
       <br />
       {/*... webstylepress ...*/}
