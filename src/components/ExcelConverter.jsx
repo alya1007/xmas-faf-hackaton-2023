@@ -6,7 +6,7 @@ const ExcelConverter = ({ pdfFile }) => {
   const [data, setData] = useState([]);
 
   const handleLessons = (parsedData) => {
-    let lessons = [];
+    const lessons = [];
     for (let i = 1; i < parsedData.length; i++) {
       for (let j = 2; j < parsedData[i].length; j++) {
 		if (parsedData[i][j] != "") {
@@ -17,13 +17,58 @@ const ExcelConverter = ({ pdfFile }) => {
 				time: parsedData[i][1],
 				day: parsedData[i][0],
 				group: parsedData[0][j]
-			  };
-			  lessons.push(lesson);
+			};
+			lessons.push(lesson);
 		}
       }
     }
     console.log(lessons);
+
+	let errors = [];
+	//
+	lessons.forEach((entry, index) => {
+		const { day, time, prof, cabinet, subject } = entry;
+		const key = `${day}-${time}-${prof}`;
+
+		if (!errors [key]){
+			errors[key] = [{index, cabinet}];
+		} else {
+			const conflictObjects = errors[key];
+            const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
+
+			if (sameTimeProf) {
+				console.error("Conflict found:", entry);
+			} else {
+				conflictObjects.push({ index, cabinet });
+			}
+		}
+
+		
+	});
   };
+
+  
+//   const checkLessons = (lessons) => {
+// 	let errors = [];
+// 	//
+// 	lessons.forEach(lesson, index => {
+// 		const { day, time, prof, cabinet, subject } = entry;
+// 		const key = `${day}-${time}-${prof}`;
+
+// 		if (!errors [key]){
+// 			conflicts[key] = [{index, cabinet}];
+// 		} else {
+// 			const conflictObjects = conflicts[key];
+//             const sameTimeProf = conflictObjects.find(obj => obj.index !== index && obj.cabinet !== cabinet);
+// 		}
+
+// 		if (sameTimeProf) {
+// 			console.error("Conflict found:", entry);
+// 		} else {
+// 			conflictObjects.push({ index, cabinet });
+// 		}
+// 	});
+//   }
 
   const handleFileUpload = (e) => {
     const reader = new FileReader();
@@ -61,6 +106,7 @@ const ExcelConverter = ({ pdfFile }) => {
 
       setData(replacedData);
       handleLessons(replacedData);
+		// checkLessons(lessons);
     };
   };
 
