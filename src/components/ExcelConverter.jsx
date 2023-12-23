@@ -6,7 +6,8 @@ const ExcelConverter = ({ pdfFile }) => {
   const [data, setData] = useState([]);
   const [lessons, setLessons] = useState([]);
   const [conflicts, setConflicts] = useState([]);
-  const [fileUploaded, setFileUploaded] = useState(false); // Added fileUploaded state
+  const [fileUploaded, setFileUploaded] = useState(false);
+  const [dataModified, setDataModified] = useState(false);
 
   const handleLessons = (parsedData) => {
     const lessonList = [];
@@ -26,25 +27,23 @@ const ExcelConverter = ({ pdfFile }) => {
       }
     }
     setLessons(lessonList);
-    console.log(lessonList);
   };
 
   const checkForConflicts = () => {
     let errors = [];
-  
     lessons.forEach((entry, index) => {
       const { day, time, prof, cabinet, subject } = entry;
       const key = `${day}-${time}-${cabinet}`;
-  
+
       if (!errors[key]) {
         errors[key] = [{ index, prof, subject }];
       } else {
         const conflictObjects = errors[key];
         const hasConflict = conflictObjects.some(obj => (
-          obj.index !== index && 
+          obj.index !== index &&
           (obj.prof !== prof || obj.subject !== subject)
         ));
-  
+
         if (hasConflict) {
           console.error("Conflict found:", entry);
         } else {
@@ -52,10 +51,10 @@ const ExcelConverter = ({ pdfFile }) => {
         }
       }
     });
-  
+
     setConflicts(errors);
+    setDataModified(false);
   };
-  
 
   const handleFileUpload = (e) => {
     const reader = new FileReader();
@@ -90,7 +89,7 @@ const ExcelConverter = ({ pdfFile }) => {
 
       setData(replacedData);
       handleLessons(replacedData);
-      setFileUploaded(true); // Set fileUploaded to true when a file is uploaded
+      setFileUploaded(true);
     };
   };
 
@@ -101,26 +100,33 @@ const ExcelConverter = ({ pdfFile }) => {
   const handleCellEdit = (rowIndex, colIndex, newValue) => {
     const newData = data.map((row, rIndex) => {
       if (rIndex === rowIndex) {
-        return Object.fromEntries(
-          Object.entries(row).map(([key, value], cIndex) => {
-            if (cIndex === colIndex) {
-              return [key, newValue];
-            }
-            return [key, value];
-          })
-        );
+        const newRow = [...row]; // Create a copy of the existing row array
+        newRow[colIndex] = newValue; // Update the specific cell value
+        return newRow;
       }
       return row;
     });
 
     setData(newData);
+    setDataModified(true);
+    handleLessons(newData);
+  };
+
+  const exportToExcel = () => {
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, "exported_data.xlsx");
   };
 
   return (
     <div className="App">
       <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      {fileUploaded && ( // Render the button only if a file is uploaded
-        <button onClick={checkForConflicts}>Check for Conflicts</button>
+      {fileUploaded && (
+        <>
+          <button onClick={checkForConflicts}>Check for Conflicts</button>
+          <button onClick={exportToExcel}>Export to Excel</button>
+        </>
       )}
 
       {data.length > 0 && (
@@ -148,7 +154,7 @@ const ExcelConverter = ({ pdfFile }) => {
           <h3>Conflicts:</h3>
           <ul>
             {conflicts.map((conflict, index) => (
-              <li key={index}>{conflict}</li>
+              <li key={index}>{JSON.stringify(conflict)}</li>
             ))}
           </ul>
         </div>
