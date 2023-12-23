@@ -1,5 +1,7 @@
 import { useState } from "react";
 import ExcelConverter from "./ExcelConverter";
+// import { fetchData } from "../services/apiService";
+import { generateExcel } from "./generateExcel";
 
 const InitialForm = () => {
 	const [selectedFile, setSelectedFile] = useState(null);
@@ -9,8 +11,21 @@ const InitialForm = () => {
 		setSelectedFile(file);
 	};
 
-	const handleGenerate = () => {
+	const handleGenerate = async () => {
 		console.log("Generate button clicked");
+		// const data = (await fetchData(selectedFile)) ?? ;
+		const data = defaultData;
+		generateExcel(data);
+	};
+
+	const defaultData = {
+		timestamps: ["mon/8", "ts/8", "wed/8"],
+		groups: ["faf-213", "ti-212"],
+		courses: [
+			["-", "SO"],
+			["PR", "FGI"],
+			["SM", "-"],
+		],
 	};
 
 	return (
