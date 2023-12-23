@@ -17,6 +17,23 @@ const ExcelConverter = ({ pdfFile }) => {
 				header: 1,
 				defval: "",
 			});
+
+			// Handle merged cells
+			const merges = sheet["!merges"] || [];
+
+			merges.forEach((merge) => {
+				const mergedValue = parsedData[merge.s.r][merge.s.c];
+
+				// Duplicate the merged value across the entire merged range
+				for (let row = merge.s.r; row <= merge.e.r; row++) {
+					for (let col = merge.s.c; col <= merge.e.c; col++) {
+						if (row !== merge.s.r || col !== merge.s.c) {
+							parsedData[row][col] = mergedValue;
+						}
+					}
+				}
+			});
+
 			setData(parsedData);
 		};
 	};
@@ -50,7 +67,7 @@ const ExcelConverter = ({ pdfFile }) => {
 			)}
 			<br />
 			<br />
-			... webstylepress ...
+			{/*... webstylepress ...*/}
 		</div>
 	);
 };
