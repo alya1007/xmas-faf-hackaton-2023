@@ -205,14 +205,20 @@ const ExcelConverter = ({ file }) => {
 	return (
 		<div className="App">
 			{
-				<>
-					<button className="excel-button" onClick={checkForConflicts}>
+				<div className="m-10">
+					<button
+						className={`mr-10 bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
+						onClick={checkForConflicts}
+					>
 						Check for Conflicts
 					</button>
-					<button className="excel-button" onClick={exportToExcel}>
+					<button
+						className={` bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
+						onClick={exportToExcel}
+					>
 						Export to Excel
 					</button>
-				</>
+				</div>
 			}
 
 			{data.length > 0 && (
