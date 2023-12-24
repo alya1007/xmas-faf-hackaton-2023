@@ -30,33 +30,7 @@ const ExcelConverter = ({ pdfFile }) => {
     }
     setLessons(lessonList);
   };
-
-  // const checkForConflicts = () => {
-  //   let errors = [];
-  //   lessons.forEach((entry, index) => {
-  //     const { day, time, prof, cabinet, subject } = entry;
-  //     const key = `${day}-${time}-${cabinet}`;
-
-  //     if (!errors[key]) {
-  //       errors[key] = [{ index, prof, subject }];
-  //     } else {
-  //       const conflictObjects = errors[key];
-  //       const hasConflict = conflictObjects.some(obj => (
-  //         obj.index !== index &&
-  //         (obj.prof !== prof || obj.subject !== subject)
-  //       ));
-
-  //       if (hasConflict) {
-  //         console.error("Conflict found:", entry);
-  //       } else {
-  //         conflictObjects.push({ index, prof, subject });
-  //       }
-  //     }
-  //   });
-
-  //   setConflicts(errors);
-  //   setDataModified(false);
-  // };
+  
   const checkForConflicts = () => {
     let newConflicts = []; // Initialize a local array for conflicts
     newConflicts = newConflicts.concat(checkForProfessorConflicts());
@@ -156,11 +130,6 @@ const ExcelConverter = ({ pdfFile }) => {
   
     return exceedingLessons;
   };
-  
-  
-  
-  
-  
   
 	const handleFileUpload = (e) => {
 		const reader = new FileReader();
