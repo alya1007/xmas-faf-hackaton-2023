@@ -203,23 +203,23 @@ const ExcelConverter = ({ file }) => {
 	};
 
 	return (
-		<div className="App">
-			{
-				<div className="m-10">
-					<button
-						className={`mr-10 bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
-						onClick={checkForConflicts}
-					>
-						Check for Conflicts
-					</button>
-					<button
-						className={` bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
-						onClick={exportToExcel}
-					>
-						Export to Excel
-					</button>
-				</div>
-			}
+    <div className="App">
+      <div className="m-10">
+        <button
+          className={`mr-10 bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
+          onClick={checkForConflicts}
+          style={{ position: "absolute", top: 105, left: 600, zIndex: 1}}
+        >
+          Check for Conflicts
+        </button>
+        <button
+          className={` bg-secondary hover:bg-primary text-card font-bold py-2 px-4 rounded-none focus:outline-none focus:shadow-outline hover:outline-none hover:transition-colors disabled:opacity-50`}
+          onClick={exportToExcel}
+          style={{ position: "absolute", top: 105, left: 900, zIndex: 1 }}
+        >
+          Export to Excel
+        </button>
+      </div>
 
 			{data.length > 0 && (
 				<table className="table">
