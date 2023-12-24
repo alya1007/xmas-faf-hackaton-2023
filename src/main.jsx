@@ -6,7 +6,7 @@ import ExcelConverter from './components/ExcelConverter.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* <App /> */}
-    <ExcelConverter/>
+    <App />
+    {/* <ExcelConverter/> */}
   </React.StrictMode>,
 )
