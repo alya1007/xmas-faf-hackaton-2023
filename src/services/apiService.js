@@ -20,3 +20,15 @@ export const fetchData = async () => {
 		console.error(error);
 	}
 };
+
+export const fetchGroups = async () => {
+	try {
+		const response = await api.get("/main");
+		const groups = response.data.data.map((item) => item.group);
+
+		return groups;
+	} catch (error) {
+		toast.error(error.message);
+		console.error(error);
+	}
+};
