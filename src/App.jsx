@@ -1,6 +1,4 @@
 import "./App.css";
-import InitialForm from "./components/InitialForm";
-import InitialForm from "./components/InitialForm";
 import Home from "./pages/home";
 
 function App() {
