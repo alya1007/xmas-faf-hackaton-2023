@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExcelConverter from "./ExcelConverter";
 import { fetchData } from "../services/apiService";
 import { generateExcel } from "./generateExcel";
@@ -6,6 +6,8 @@ import { generateExcel } from "./generateExcel";
 const InitialForm = () => {
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [loading, setLoading] = useState(false);
+	const [groups, setGroups] = useState([]);
+	const [responseData, setResponseData] = useState({});
 
 	const handleFileSelect = (e) => {
 		const file = e.target.files[0];
@@ -15,6 +17,14 @@ const InitialForm = () => {
 	const handleGenerate = async () => {
 		setLoading(true);
 		const data = await fetchData();
+
+		setGroups(data.groups);
+		setResponseData(data);
+
+		console.log("response data: ", responseData);
+
+		console.log();
+
 		generateExcel(data);
 		setLoading(false);
 	};
