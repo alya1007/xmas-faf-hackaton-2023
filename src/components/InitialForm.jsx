@@ -62,10 +62,8 @@ const InitialForm = () => {
     	</div>
         )}
 		{selectedFile && (
-			<div className="w-full mt-8">
-				<div className="bg-white shadow-md py-20 px-10 mb-4 w-12/12 space-y-5">	
-					<ExcelConverter key={selectedFile.name} file={selectedFile} />
-				</div>
+			<div className="w-full mt-8 overflow-x-auto bg-white shadow-md py-20 px-10 mb-4 space-y-5">
+				<ExcelConverter key={selectedFile.name} file={selectedFile} />
 			</div>
 			)
 		}
