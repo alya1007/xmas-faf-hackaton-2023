@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ExcelConverter from "./ExcelConverter";
 import { fetchData } from "../services/apiService";
 import { generateExcel } from "./generateExcel";
@@ -6,8 +6,6 @@ import { generateExcel } from "./generateExcel";
 const InitialForm = () => {
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [loading, setLoading] = useState(false);
-	const [groups, setGroups] = useState([]);
-	const [responseData, setResponseData] = useState({});
 
 	const handleFileSelect = (e) => {
 		const file = e.target.files[0];
@@ -17,14 +15,6 @@ const InitialForm = () => {
 	const handleGenerate = async () => {
 		setLoading(true);
 		const data = await fetchData();
-
-		setGroups(data.groups);
-		setResponseData(data);
-
-		console.log("response data: ", responseData);
-
-		console.log();
-
 		generateExcel(data);
 		setLoading(false);
 	};
@@ -72,10 +62,8 @@ const InitialForm = () => {
 				</div>
 			)}
 			{selectedFile && (
-				<div className="w-full mt-8">
-					<div className="bg-white shadow-md py-20 px-10 mb-4 w-12/12 space-y-5">
-						<ExcelConverter key={selectedFile.name} file={selectedFile} />
-					</div>
+				<div className="w-full mt-8 overflow-x-auto bg-white shadow-md py-20 px-10 mb-4 space-y-5">
+					<ExcelConverter key={selectedFile.name} file={selectedFile} />
 				</div>
 			)}
 		</div>
